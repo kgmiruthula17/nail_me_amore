@@ -40,13 +40,19 @@ export function useProducts() {
 
   useEffect(() => {
     fetch("/api/products", { cache: "no-store" })
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error("HTTP error " + res.status);
+        }
+        return res.json();
+      })
       .then((data) => {
-        setProductData(data);
+        setProductData(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Failed to fetch products:", err);
+        setProductData([]);
         setLoading(false);
       });
   }, []);

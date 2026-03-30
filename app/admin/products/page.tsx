@@ -16,10 +16,12 @@ export default function AdminProductsPage() {
     setLoading(true);
     try {
       const res = await fetch("/api/products");
+      if (!res.ok) throw new Error("HTTP error " + res.status);
       const data = await res.json();
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch products:", err);
+      setProducts([]);
     } finally {
       setLoading(false);
     }

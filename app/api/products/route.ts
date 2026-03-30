@@ -3,6 +3,8 @@ export const dynamic = "force-dynamic";
 import { promises as fs } from "fs";
 import path from "path";
 
+import defaultProducts from "../../../data/products.json";
+
 const productsFilePath = path.join(process.cwd(), "data", "products.json");
 
 export async function GET() {
@@ -11,10 +13,8 @@ export async function GET() {
     const products = JSON.parse(fileContents);
     return NextResponse.json(products);
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to read products" },
-      { status: 500 }
-    );
+    console.warn("Falling back to default products data:", error);
+    return NextResponse.json(defaultProducts);
   }
 }
 
