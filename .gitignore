@@ -38,5 +38,3 @@ pnpm-debug.log*
 next-env.d.ts
 
 # local persistent data
-data/products.json
-data/stats.json

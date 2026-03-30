@@ -1,0 +1,12 @@
+{
+  "totalBuys": 142,
+  "totalIncome": 85400,
+  "activeSessions": 24,
+  "conversionRate": "3.8%",
+  "recentOrders": [
+    { "id": "ORD-101", "product": "Floral Crystal Bloom", "amount": 499, "status": "Delivered", "date": "2024-03-30T10:00:00Z" },
+    { "id": "ORD-102", "product": "Silver Marble Luxe", "amount": 699, "status": "Processing", "date": "2024-03-30T11:30:00Z" },
+    { "id": "ORD-103", "product": "Noir Blossom Chic", "amount": 749, "status": "Shipped", "date": "2024-03-30T12:15:00Z" },
+    { "id": "ORD-104", "product": "Diamond Dust", "amount": 799, "status": "Processing", "date": "2024-03-30T14:45:00Z" }
+  ]
+}

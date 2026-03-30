@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "Floral Crystal Bloom",
+    "price": 499,
+    "originalPrice": 699,
+    "category": "classic",
+    "style": "short",
+    "description": "A delicate and enchanting design featuring soft pink hues adorned with shimmering crystal accents. This style captures the essence of a blooming flower, offering a touch of elegance and sparkle to your everyday look.",
+    "image": "/images/1.png"
+  },
+  {
+    "id": 2,
+    "name": "Kawaii Pop Delight",
+    "price": 599,
+    "originalPrice": 799,
+    "category": "french",
+    "style": "medium",
+    "description": "A playful and vibrant take on the classic French manicure. This design features a crisp white tip enhanced with charming pastel accents and playful dots, adding a touch of fun and personality to your look.",
+    "image": "/images/2.png"
+  },
+  {
+    "id": 3,
+    "name": "Silver Marble Luxe",
+    "price": 699,
+    "originalPrice": 899,
+    "category": "glam",
+    "style": "long",
+    "description": "A sleek blend of white marble and molten silver accents. Designed for a bold, statement look with a refined edge.",
+    "image": "/images/3.png"
+  },
+  {
+    "id": 4,
+    "name": "Pearl Glaze Elegance",
+    "price": 549,
+    "originalPrice": 749,
+    "category": "bold",
+    "style": "medium",
+    "description": "A soft, milky white base with a high-shine, glossy finish. Simple, classic, and effortlessly chic.",
+    "image": "/images/4.png"
+  },
+  {
+    "id": 5,
+    "name": "Noir Blossom Chic",
+    "price": 749,
+    "originalPrice": 999,
+    "category": "art",
+    "style": "long",
+    "description": "A sophisticated blend of deep black and delicate white florals. This design captures the essence of timeless romance with a modern, edgy twist.",
+    "image": "/images/5.png"
+  },
+  {
+    "id": 6,
+    "name": "Nude Luxe",
+    "price": 449,
+    "originalPrice": 599,
+    "category": "classic",
+    "style": "short",
+    "description": "Minimalist nude tones for everyday elegance. Your nails, but better.",
+    "image": "/images/6.png"
+  },
+  {
+    "id": 7,
+    "name": "Cherry Blossom",
+    "price": 649,
+    "originalPrice": 849,
+    "category": "art",
+    "style": "medium",
+    "description": "Delicate cherry blossom art on a soft pink base. Spring on your fingertips.",
+    "image": "/images/7.png"
+  },
+  {
+    "id": 8,
+    "name": "Diamond Dust",
+    "price": 799,
+    "originalPrice": 1099,
+    "category": "glam",
+    "style": "long",
+    "description": "Crystal-studded press-ons for those unforgettable special occasions.",
+    "image": "/images/8.png"
+  },
+  {
+    "id": 9,
+    "name": "Blush Mermaid Pearl",
+    "price": 799,
+    "originalPrice": 999,
+    "category": "glam",
+    "style": "medium",
+    "description": "A dreamy blend of blush pink gradients, pearlescent shimmer, and delicate 3D shell details. Inspired by ocean elegance, this set brings a soft, magical glow to your look.",
+    "image": "/images/1774876573906-Screenshot_2026-03-30_184417.png"
+  }
+]
