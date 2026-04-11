@@ -111,9 +111,6 @@ export default function AdminProductsPage() {
                             <p className="font-heading text-base text-charcoal font-medium">
                               {product.name}
                             </p>
-                            <p className="text-xs text-charcoal/40 line-clamp-1 max-w-[200px]">
-                              {product.description}
-                            </p>
                           </div>
                         </div>
                       </td>

@@ -107,13 +107,13 @@ export default function HeroSection() {
             </motion.button>
           </Link>
 
-          <Link href="/contact">
+          <Link href="/custom-order">
             <motion.button
               whileHover={{ scale: 1.03, y: -2 }}
               whileTap={{ scale: 0.97 }}
-              className="px-8 py-4 rounded-full text-sm tracking-widest uppercase font-medium text-cream/60 border border-cream/15 hover:border-rose-gold hover:text-rose-gold transition-all duration-500 cursor-pointer"
+              className="px-8 py-4 rounded-full text-sm tracking-widest uppercase font-medium text-cream/90 border border-cream/30 hover:bg-white/10 hover:border-white transition-all duration-500 cursor-pointer backdrop-blur-sm shadow-lg shadow-white/5"
             >
-              Get in Touch
+              Custom Order
             </motion.button>
           </Link>
         </motion.div>

@@ -188,13 +188,15 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-charcoal text-cream py-4 rounded-full text-sm tracking-widest uppercase font-medium mt-8 hover:bg-rose-gold transition-colors duration-500 cursor-pointer shadow-lg shadow-charcoal/10"
-                >
-                  Checkout
-                </motion.button>
+                <Link href="/checkout" className="block mt-8">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full bg-charcoal text-cream py-4 rounded-full text-sm tracking-widest uppercase font-medium hover:bg-rose-gold transition-colors duration-500 cursor-pointer shadow-lg shadow-charcoal/10"
+                  >
+                    Checkout
+                  </motion.button>
+                </Link>
 
                 <Link
                   href="/shop"

@@ -67,12 +67,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         {/* Content */}
         <div className="p-3 sm:p-5 flex flex-col justify-between flex-grow">
           <div>
-            <h3 className="font-heading text-[13px] sm:text-lg text-charcoal mb-0.5 sm:mb-1 truncate">
+            <h3 className="font-heading text-[13px] sm:text-lg text-charcoal mb-2 sm:mb-3 truncate">
               {product.name}
             </h3>
-            <p className="text-[10px] sm:text-xs text-charcoal/40 mb-2 sm:mb-3 line-clamp-1 sm:line-clamp-2 leading-relaxed">
-              {product.description}
-            </p>
           </div>
 
           <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-2.5 2xl:gap-0 mt-1 sm:mt-0">

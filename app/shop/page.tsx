@@ -1,27 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProducts } from "../components/CartProvider";
 import ProductCard from "../components/ProductCard";
 import AnimatedSection from "../components/AnimatedSection";
 import { SlidersHorizontal, X } from "lucide-react";
 
-const categories = [
-  { value: "all", label: "All" },
-  { value: "classic", label: "Classic" },
-  { value: "french", label: "French" },
-  { value: "glam", label: "Glam" },
-  { value: "bold", label: "Bold" },
-  { value: "art", label: "Art" },
-];
 
-const styles = [
-  { value: "all", label: "All Lengths" },
-  { value: "short", label: "Short" },
-  { value: "medium", label: "Medium" },
-  { value: "long", label: "Long" },
-];
 
 const priceRanges = [
   { value: "all", label: "All Prices" },
@@ -32,17 +18,45 @@ const priceRanges = [
 
 export default function ShopPage() {
   const { products, loading } = useProducts();
+  const [categories, setCategories] = useState<{value: string, label: string}[]>([{ value: "all", label: "All" }]);
+  const [styles, setStyles] = useState<{value: string, label: string}[]>([{ value: "all", label: "All Lengths" }]);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [styleFilter, setStyleFilter] = useState("all");
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setCategories([
+            { value: "all", label: "All" },
+            ...data.map(d => ({ value: d.name.toLowerCase(), label: d.name }))
+          ]);
+        }
+      })
+      .catch(console.error);
+
+    fetch("/api/styles")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setStyles([
+            { value: "all", label: "All Lengths" },
+            ...data.map(d => ({ value: d.name.toLowerCase(), label: d.name }))
+          ]);
+        }
+      })
+      .catch(console.error);
+  }, []);
   const [priceFilter, setPriceFilter] = useState("all");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const categoryMatch =
-        categoryFilter === "all" || product.category === categoryFilter;
+        categoryFilter === "all" || product.category?.toLowerCase() === categoryFilter.toLowerCase();
       const styleMatch =
-        styleFilter === "all" || product.style === styleFilter;
+        styleFilter === "all" || product.style?.toLowerCase() === styleFilter.toLowerCase();
       let priceMatch = true;
       if (priceFilter === "under500") priceMatch = product.price < 500;
       else if (priceFilter === "500to700")

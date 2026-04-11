@@ -1,71 +1,57 @@
 import { NextResponse } from "next/server";
+import { prisma } from "../../lib/prisma";
+import { uploadToCloudinary } from "../../lib/cloudinary";
+
 export const dynamic = "force-dynamic";
-import { promises as fs } from "fs";
-import path from "path";
-
-import defaultProducts from "../../../data/products.json";
-
-const productsFilePath = path.join(process.cwd(), "data", "products.json");
 
 export async function GET() {
   try {
-    const fileContents = await fs.readFile(productsFilePath, "utf8");
-    const products = JSON.parse(fileContents);
+    const products = await prisma.product.findMany({
+      orderBy: { id: "asc" },
+    });
     return NextResponse.json(products);
   } catch (error) {
-    console.warn("Falling back to default products data:", error);
-    return NextResponse.json(defaultProducts);
+    console.error("Error fetching products:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch products" },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    
+
     // Extract text fields
     const name = formData.get("name") as string;
     const price = Number(formData.get("price"));
-    const originalPrice = formData.get("originalPrice") ? Number(formData.get("originalPrice")) : undefined;
+    const originalPrice = formData.get("originalPrice") ? Number(formData.get("originalPrice")) : null;
     const category = formData.get("category") as string;
     const style = formData.get("style") as string;
     const description = formData.get("description") as string;
-    
-    // Extract Image
+
+    // Extract and upload image to Cloudinary
     const image = formData.get("image") as File | null;
-    let imagePath = "";
+    let imageUrl: string | null = null;
 
     if (image && image.name) {
       const bytes = await image.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      
-      // Save image to public/images folder
-      const filename = `${Date.now()}-${image.name.replace(/\s+/g, "_")}`;
-      const uploadDir = path.join(process.cwd(), "public", "images");
-      const filepath = path.join(uploadDir, filename);
-      
-      await fs.writeFile(filepath, buffer);
-      imagePath = `/images/${filename}`;
+      imageUrl = await uploadToCloudinary(buffer, image.name);
     }
 
-    // Read existing products to determine new ID and append
-    const fileContents = await fs.readFile(productsFilePath, "utf8");
-    const products = JSON.parse(fileContents);
-    
-    const newId = products.length > 0 ? Math.max(...products.map((p: any) => p.id)) + 1 : 1;
-    
-    const newProduct = {
-      id: newId,
-      name,
-      price,
-      originalPrice,
-      category,
-      style,
-      description,
-      image: imagePath || undefined,
-    };
-
-    products.push(newProduct);
-    await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2));
+    const newProduct = await prisma.product.create({
+      data: {
+        name,
+        price,
+        originalPrice,
+        category,
+        style,
+        description,
+        image: imageUrl,
+      },
+    });
 
     return NextResponse.json(newProduct, { status: 201 });
   } catch (error) {
@@ -76,3 +62,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Upload, Check } from "lucide-react";
 
 interface ProductFormProps {
@@ -22,6 +22,20 @@ export default function ProductForm({ product, onClose, onSaved }: ProductFormPr
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(product?.image || null);
   const [loading, setLoading] = useState(false);
+  const [categoriesOptions, setCategoriesOptions] = useState<any[]>([]);
+  const [stylesOptions, setStylesOptions] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((data) => Array.isArray(data) && setCategoriesOptions(data))
+      .catch((err) => console.error(err));
+      
+    fetch("/api/styles")
+      .then((res) => res.json())
+      .then((data) => Array.isArray(data) && setStylesOptions(data))
+      .catch((err) => console.error(err));
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -149,42 +163,39 @@ export default function ProductForm({ product, onClose, onSaved }: ProductFormPr
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-charcoal/50">Category</label>
-              <select
+              <input
+                type="text"
+                list="category-options"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                placeholder="e.g. classic, french"
                 className="w-full bg-cream border border-charcoal/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-rose-gold"
-              >
-                <option value="classic">Classic</option>
-                <option value="french">French</option>
-                <option value="glam">Glam</option>
-                <option value="bold">Bold</option>
-                <option value="art">Art</option>
-              </select>
+              />
+              <datalist id="category-options">
+                {categoriesOptions.map((c) => (
+                  <option key={c.id} value={c.name} />
+                ))}
+              </datalist>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-charcoal/50">Length / Style</label>
-              <select
+              <input
+                type="text"
+                list="style-options"
                 value={formData.style}
                 onChange={(e) => setFormData({ ...formData, style: e.target.value })}
+                placeholder="e.g. short, medium"
                 className="w-full bg-cream border border-charcoal/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-rose-gold"
-              >
-                <option value="short">Short</option>
-                <option value="medium">Medium</option>
-                <option value="long">Long</option>
-              </select>
+              />
+              <datalist id="style-options">
+                {stylesOptions.map((s) => (
+                  <option key={s.id} value={s.name} />
+                ))}
+              </datalist>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-charcoal/50">Description</label>
-            <textarea
-              required
-              rows={3}
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full bg-cream border border-charcoal/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-rose-gold resize-none"
-            />
-          </div>
+
 
           <div className="pt-4 flex justify-end gap-3 border-t border-charcoal/10">
             <button

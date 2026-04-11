@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Package, LayoutDashboard, LogOut } from "lucide-react";
+import { Package, LayoutDashboard, LogOut, Tags, Ruler } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -70,13 +70,39 @@ export default function AdminLayout({
               <Link href="/admin/products">
                 <button
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    pathname === "/admin/products"
+                    pathname === "/admin/products" || pathname.startsWith("/admin/products/")
                       ? "bg-rose-gold/10 text-rose-gold"
                       : "text-charcoal/60 hover:bg-charcoal/5 hover:text-charcoal"
                   }`}
                 >
                   <Package size={16} />
                   Products
+                </button>
+              </Link>
+
+              <Link href="/admin/categories">
+                <button
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    pathname === "/admin/categories"
+                      ? "bg-rose-gold/10 text-rose-gold"
+                      : "text-charcoal/60 hover:bg-charcoal/5 hover:text-charcoal"
+                  }`}
+                >
+                  <Tags size={16} />
+                  Categories
+                </button>
+              </Link>
+
+              <Link href="/admin/styles">
+                <button
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    pathname === "/admin/styles"
+                      ? "bg-rose-gold/10 text-rose-gold"
+                      : "text-charcoal/60 hover:bg-charcoal/5 hover:text-charcoal"
+                  }`}
+                >
+                  <Ruler size={16} />
+                  Lengths
                 </button>
               </Link>
             </nav>
