@@ -14,9 +14,8 @@ export default function ProductForm({ product, onClose, onSaved }: ProductFormPr
     name: product?.name || "",
     price: product?.price || "",
     originalPrice: product?.originalPrice || "",
-    category: product?.category || "classic",
-    style: product?.style || "medium",
-    description: product?.description || "",
+    category: product?.category || "",
+    style: product?.style || "",
   });
   
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -163,35 +162,31 @@ export default function ProductForm({ product, onClose, onSaved }: ProductFormPr
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-charcoal/50">Category</label>
-              <input
-                type="text"
-                list="category-options"
+              <select
+                required
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                placeholder="e.g. classic, french"
-                className="w-full bg-cream border border-charcoal/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-rose-gold"
-              />
-              <datalist id="category-options">
+                className="w-full bg-cream border border-charcoal/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-rose-gold appearance-none"
+              >
+                <option value="" disabled>Select a category</option>
                 {categoriesOptions.map((c) => (
-                  <option key={c.id} value={c.name} />
+                  <option key={c.id} value={c.name}>{c.name}</option>
                 ))}
-              </datalist>
+              </select>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-charcoal/50">Length / Style</label>
-              <input
-                type="text"
-                list="style-options"
+              <select
+                required
                 value={formData.style}
                 onChange={(e) => setFormData({ ...formData, style: e.target.value })}
-                placeholder="e.g. short, medium"
-                className="w-full bg-cream border border-charcoal/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-rose-gold"
-              />
-              <datalist id="style-options">
+                className="w-full bg-cream border border-charcoal/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-rose-gold appearance-none"
+              >
+                <option value="" disabled>Select a style</option>
                 {stylesOptions.map((s) => (
-                  <option key={s.id} value={s.name} />
+                  <option key={s.id} value={s.name}>{s.name}</option>
                 ))}
-              </datalist>
+              </select>
             </div>
           </div>
 

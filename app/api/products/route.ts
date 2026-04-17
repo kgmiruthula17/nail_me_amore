@@ -29,7 +29,6 @@ export async function POST(request: Request) {
     const originalPrice = formData.get("originalPrice") ? Number(formData.get("originalPrice")) : null;
     const category = formData.get("category") as string;
     const style = formData.get("style") as string;
-    const description = formData.get("description") as string;
 
     // Extract and upload image to Cloudinary
     const image = formData.get("image") as File | null;
@@ -48,7 +47,7 @@ export async function POST(request: Request) {
         originalPrice,
         category,
         style,
-        description,
+        description: "",
         image: imageUrl,
       },
     });

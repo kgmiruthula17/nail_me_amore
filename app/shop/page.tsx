@@ -3,21 +3,14 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProducts } from "../components/CartProvider";
+import { useCountry } from "../components/CountryProvider";
 import ProductCard from "../components/ProductCard";
 import AnimatedSection from "../components/AnimatedSection";
 import { SlidersHorizontal, X } from "lucide-react";
 
-
-
-const priceRanges = [
-  { value: "all", label: "All Prices" },
-  { value: "under500", label: "Under ₹500" },
-  { value: "500to700", label: "₹500 - ₹700" },
-  { value: "above700", label: "Above ₹700" },
-];
-
 export default function ShopPage() {
   const { products, loading } = useProducts();
+  const { displayPrice, convertPrice, country, isIndia } = useCountry();
   const [categories, setCategories] = useState<{value: string, label: string}[]>([{ value: "all", label: "All" }]);
   const [styles, setStyles] = useState<{value: string, label: string}[]>([{ value: "all", label: "All Lengths" }]);
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -51,6 +44,27 @@ export default function ShopPage() {
   const [priceFilter, setPriceFilter] = useState("all");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  // Dynamic price ranges based on currency
+  const priceRanges = useMemo(() => {
+    // Base ranges in INR
+    const low = 500;
+    const high = 700;
+
+    const lowConverted = convertPrice(low);
+    const highConverted = convertPrice(high);
+
+    const sym = country.symbol;
+    const noDecimal = ["JPY", "KRW", "IDR", "NGN"].includes(country.currency);
+    const fmt = (n: number) => noDecimal ? Math.round(n).toLocaleString() : n.toFixed(2);
+
+    return [
+      { value: "all", label: "All Prices" },
+      { value: "under500", label: `Under ${sym}${fmt(lowConverted)}` },
+      { value: "500to700", label: `${sym}${fmt(lowConverted)} - ${sym}${fmt(highConverted)}` },
+      { value: "above700", label: `Above ${sym}${fmt(highConverted)}` },
+    ];
+  }, [convertPrice, country]);
+
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const categoryMatch =
@@ -58,6 +72,7 @@ export default function ShopPage() {
       const styleMatch =
         styleFilter === "all" || product.style?.toLowerCase() === styleFilter.toLowerCase();
       let priceMatch = true;
+      // Filter uses INR values (product.price is in INR)
       if (priceFilter === "under500") priceMatch = product.price < 500;
       else if (priceFilter === "500to700")
         priceMatch = product.price >= 500 && product.price <= 700;

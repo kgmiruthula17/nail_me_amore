@@ -2,16 +2,19 @@
 
 import { motion } from "framer-motion";
 import { useCart } from "../components/CartProvider";
+import { useCountry } from "../components/CountryProvider";
 import AnimatedSection from "../components/AnimatedSection";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Tag, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, MapPin, User, Phone, Mail } from "lucide-react";
+import { Sparkles, MapPin, User, Phone, Mail, Globe } from "lucide-react";
 
 export default function CheckoutPage() {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice, totalItems, clearCart } = useCart();
+  const { displayPrice, getShipping, getDiscount, isIndia, formatPrice, convertPrice, country } =
+    useCountry();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -24,8 +27,22 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const shipping = totalPrice >= 999 ? 0 : 99;
-  const grandTotal = totalPrice + shipping;
+  // Shipping
+  const shippingInfo = getShipping(totalPrice);
+  const shippingDisplay = shippingInfo.free
+    ? null
+    : formatPrice(shippingInfo.amount);
+
+  // Discount
+  const discount = getDiscount(totalItems);
+  const convertedSubtotal = convertPrice(totalPrice);
+  const discountAmount = discount
+    ? convertedSubtotal * (discount.percent / 100)
+    : 0;
+
+  // Grand total
+  const grandTotal =
+    convertedSubtotal - discountAmount + shippingInfo.amount;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -56,12 +73,16 @@ export default function CheckoutPage() {
           email: formData.email,
           address: formData.address,
           total: grandTotal,
+          country: country.code,
+          currency: country.currency,
           items: items.map((item) => ({
             productId: item.id,
             name: item.name,
             quantity: item.quantity,
             price: item.price,
             imageUrl: item.image || null,
+            shape: item.shape,
+            size: item.size,
           })),
         }),
       });
@@ -152,7 +173,7 @@ export default function CheckoutPage() {
                           value={formData.phone}
                           onChange={handleChange}
                           className="w-full pl-11 pr-4 py-3 bg-cream/30 border border-dusty-pink/30 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-gold transition-all duration-300 text-charcoal placeholder-charcoal/30"
-                          placeholder="+91 98765 43210"
+                          placeholder={isIndia ? "+91 98765 43210" : "+1 (555) 000-0000"}
                         />
                       </div>
                     </div>
@@ -175,6 +196,23 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
+                    {/* Country Display */}
+                    <div className="space-y-1 md:col-span-2">
+                      <label className="text-sm text-charcoal/60 font-medium ml-1">Shipping Country</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                          <Globe size={16} className="text-charcoal/20" />
+                        </div>
+                        <div className="w-full pl-11 pr-4 py-3 bg-cream/30 border border-dusty-pink/30 rounded-xl text-charcoal flex items-center gap-2">
+                          <span>{country.flag}</span>
+                          <span>{country.name}</span>
+                          <span className="text-charcoal/30 text-xs ml-auto">
+                            Change in navbar
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="space-y-1 md:col-span-2">
                       <label className="text-sm text-charcoal/60 font-medium ml-1">Delivery Address</label>
                       <div className="relative">
@@ -188,7 +226,11 @@ export default function CheckoutPage() {
                           value={formData.address}
                           onChange={handleChange}
                           className="w-full pl-11 pr-4 py-3 bg-cream/30 border border-dusty-pink/30 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-gold transition-all duration-300 text-charcoal placeholder-charcoal/30 resize-none"
-                          placeholder="Your full delivery address including Pincode"
+                          placeholder={
+                            isIndia
+                              ? "Your full delivery address including Pincode"
+                              : "Your full delivery address including ZIP/Postal code"
+                          }
                         />
                       </div>
                     </div>
@@ -249,7 +291,9 @@ export default function CheckoutPage() {
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm text-charcoal truncate">{item.name}</h4>
                         <p className="text-xs text-charcoal/40">Qty: {item.quantity}</p>
-                        <p className="text-sm font-semibold text-charcoal mt-1">₹{item.price}</p>
+                        <p className="text-sm font-semibold text-charcoal mt-1">
+                          {displayPrice(item.price * item.quantity)}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -258,16 +302,42 @@ export default function CheckoutPage() {
                 <div className="space-y-3 text-sm border-t border-dusty-pink/15 pt-4">
                   <div className="flex justify-between text-charcoal/50">
                     <span>Subtotal</span>
-                    <span>₹{totalPrice}</span>
+                    <span>{formatPrice(convertedSubtotal)}</span>
                   </div>
+
+                  {/* Discount */}
+                  {discount && (
+                    <div className="flex justify-between text-green-600">
+                      <span className="flex items-center gap-1.5">
+                        <Tag size={12} />
+                        {discount.label}
+                      </span>
+                      <span>-{formatPrice(discountAmount)}</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-charcoal/50">
-                    <span>Shipping</span>
-                    <span>{shipping === 0 ? <span className="text-green-600">Free</span> : `₹${shipping}`}</span>
+                    <span className="flex items-center gap-1.5">
+                      <Truck size={12} />
+                      Shipping
+                    </span>
+                    <span>
+                      {shippingInfo.free ? (
+                        <span className="text-green-600">Free</span>
+                      ) : (
+                        shippingDisplay
+                      )}
+                    </span>
                   </div>
+                  {!isIndia && (
+                    <p className="text-[10px] text-charcoal/30">
+                      International shipping to {country.name}
+                    </p>
+                  )}
                   <div className="border-t border-charcoal/10 pt-3 mt-3">
                     <div className="flex justify-between font-semibold text-charcoal text-base">
                       <span>Total to Pay</span>
-                      <span>₹{grandTotal}</span>
+                      <span>{formatPrice(grandTotal)}</span>
                     </div>
                   </div>
                 </div>

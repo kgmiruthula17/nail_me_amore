@@ -31,6 +31,8 @@ export async function POST(request: Request) {
             quantity: item.quantity,
             price: item.price,
             imageUrl: item.imageUrl,
+            shape: item.shape,
+            size: item.size,
           })),
         },
       },

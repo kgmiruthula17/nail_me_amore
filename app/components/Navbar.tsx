@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "./CartProvider";
+import CountrySelector, { CountrySelectorMobile } from "./CountrySelector";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -29,6 +30,7 @@ export default function Navbar() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/shop", label: "Shop" },
+    { href: "/size-guide", label: "Size Guide" },
     { href: "/contact", label: "Contact" },
   ];
 
@@ -86,26 +88,31 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Right: Cart */}
-          <Link
-            href="/cart"
-            className="relative p-2 text-charcoal/70 hover:text-charcoal transition-colors duration-300"
-            aria-label="Shopping cart"
-          >
-            <ShoppingBag size={20} strokeWidth={1.5} />
-            <AnimatePresence>
-              {totalItems > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="absolute -top-0.5 -right-0.5 bg-rose-gold text-white text-[10px] font-semibold w-5 h-5 rounded-full flex items-center justify-center"
-                >
-                  {totalItems}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </Link>
+          {/* Right: Country Selector + Cart */}
+          <div className="flex items-center gap-3">
+            <div className="hidden md:block">
+              <CountrySelector />
+            </div>
+            <Link
+              href="/cart"
+              className="relative p-2 text-charcoal/70 hover:text-charcoal transition-colors duration-300"
+              aria-label="Shopping cart"
+            >
+              <ShoppingBag size={20} strokeWidth={1.5} />
+              <AnimatePresence>
+                {totalItems > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="absolute -top-0.5 -right-0.5 bg-rose-gold text-white text-[10px] font-semibold w-5 h-5 rounded-full flex items-center justify-center"
+                  >
+                    {totalItems}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </Link>
+          </div>
         </div>
       </motion.nav>
 
@@ -153,7 +160,12 @@ export default function Navbar() {
                 ))}
               </div>
 
-              <div className="mt-12 pt-8 border-t border-dusty-pink/30">
+              {/* Country Selector in Mobile Menu */}
+              <div className="mt-8 pt-6 border-t border-dusty-pink/30">
+                <CountrySelectorMobile />
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-dusty-pink/30">
                 <p className="font-heading text-lg text-charcoal/50">
                   Nail Me Amore
                 </p>

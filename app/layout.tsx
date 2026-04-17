@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "./components/CartProvider";
+import { CountryProvider } from "./components/CountryProvider";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -20,14 +21,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Nail Me Amore | Luxury Press-On Nails",
   description:
-    "Handcrafted luxury press-on nails delivered across India. Salon-quality nails, ready in minutes. Reusable, long-lasting, and stunningly beautiful.",
+    "Handcrafted luxury press-on nails shipped worldwide. Salon-quality nails, ready in minutes. Reusable, long-lasting, and stunningly beautiful.",
   keywords: [
     "press-on nails",
     "luxury nails",
     "handmade nails",
     "nail art",
-    "India",
+    "worldwide shipping",
     "reusable nails",
+    "international delivery",
   ],
 };
 
@@ -45,11 +47,13 @@ export default function RootLayout({
         className="min-h-full flex flex-col"
         style={{ fontFamily: "var(--font-inter), sans-serif" }}
       >
-        <CartProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </CartProvider>
+        <CountryProvider>
+          <CartProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </CartProvider>
+        </CountryProvider>
       </body>
     </html>
   );

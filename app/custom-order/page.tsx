@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X, CheckCircle2, ChevronRight, Ruler, Sparkles, User, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useCountry } from "../components/CountryProvider";
+import { CUSTOM_ORDER_BASE_INR } from "../lib/currencyConfig";
 
 const SIZES = [
   { id: "S", label: "Small", desc: "14-10-11-10-7 (mm)" },
@@ -21,6 +23,7 @@ const SHAPES = [
 ];
 
 export default function CustomOrderPage() {
+  const { displayPrice } = useCountry();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -320,7 +323,7 @@ export default function CustomOrderPage() {
                     <div className="bg-white/40 rounded-xl p-5 border border-white mt-6">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium">Custom Design Base Fee</span>
-                        <span className="font-heading text-xl text-rose-gold">$45.00</span>
+                        <span className="font-heading text-xl text-rose-gold">{displayPrice(CUSTOM_ORDER_BASE_INR)}</span>
                       </div>
                       <p className="text-xs text-charcoal/60">
                         Final quote will be confirmed upon design review. This acts as an initial request.

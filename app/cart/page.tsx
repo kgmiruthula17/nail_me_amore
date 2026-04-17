@@ -2,17 +2,35 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "../components/CartProvider";
+import { useCountry } from "../components/CountryProvider";
 import AnimatedSection from "../components/AnimatedSection";
 import Link from "next/link";
 import Image from "next/image";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Sparkles } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Sparkles, Tag, Truck } from "lucide-react";
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, totalPrice, totalItems } =
     useCart();
+  const { displayPrice, getShipping, getDiscount, getUpsellMessage, isIndia, formatPrice, convertPrice, country } =
+    useCountry();
 
-  const shipping = totalPrice >= 999 ? 0 : 99;
-  const grandTotal = totalPrice + shipping;
+  // Shipping
+  const shippingInfo = getShipping(totalPrice);
+  const shippingDisplay = shippingInfo.free
+    ? null
+    : formatPrice(shippingInfo.amount);
+
+  // Discount
+  const discount = getDiscount(totalItems);
+  const discountAmount = discount
+    ? convertPrice(totalPrice) * (discount.percent / 100)
+    : 0;
+  const upsellMessage = getUpsellMessage(totalItems);
+
+  // Grand total
+  const convertedSubtotal = convertPrice(totalPrice);
+  const grandTotal =
+    convertedSubtotal - discountAmount + shippingInfo.amount;
 
   return (
     <div className="pt-28 pb-20 min-h-screen bg-cream">
@@ -67,10 +85,24 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
+              {/* Upsell Banner */}
+              {upsellMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gradient-to-r from-rose-gold/10 to-dusty-pink/10 border border-rose-gold/20 rounded-xl px-5 py-3 flex items-center gap-3"
+                >
+                  <Tag size={16} className="text-rose-gold flex-shrink-0" />
+                  <p className="text-sm text-charcoal/70 font-medium">
+                    {upsellMessage}
+                  </p>
+                </motion.div>
+              )}
+
               <AnimatePresence>
                 {items.map((item, index) => (
                   <motion.div
-                    key={item.id}
+                    key={item.cartItemId}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -100, height: 0 }}
@@ -102,11 +134,14 @@ export default function CartPage() {
                       <h3 className="font-heading text-base text-charcoal truncate">
                         {item.name}
                       </h3>
-                      <p className="text-xs text-charcoal/35 capitalize mt-0.5">
-                        {item.category} · {item.style}
+                      <p className="text-xs text-charcoal/50 capitalize mt-1 mb-1">
+                        {item.shape} &middot; Size {item.size}
                       </p>
-                      <p className="text-sm font-semibold text-charcoal mt-1">
-                        ₹{item.price}
+                      <p className="text-[10px] text-charcoal/35 capitalize">
+                        {item.category} &middot; {item.style}
+                      </p>
+                      <p className="text-sm font-semibold text-charcoal mt-1.5">
+                        {displayPrice(item.price)}
                       </p>
                     </div>
 
@@ -115,7 +150,7 @@ export default function CartPage() {
                       <motion.button
                         whileTap={{ scale: 0.9 }}
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
+                          updateQuantity(item.cartItemId, item.quantity - 1)
                         }
                         className="w-8 h-8 rounded-full border border-charcoal/10 flex items-center justify-center text-charcoal/40 hover:bg-charcoal hover:text-cream transition-all duration-300 cursor-pointer"
                       >
@@ -127,7 +162,7 @@ export default function CartPage() {
                       <motion.button
                         whileTap={{ scale: 0.9 }}
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
+                          updateQuantity(item.cartItemId, item.quantity + 1)
                         }
                         className="w-8 h-8 rounded-full border border-charcoal/10 flex items-center justify-center text-charcoal/40 hover:bg-charcoal hover:text-cream transition-all duration-300 cursor-pointer"
                       >
@@ -138,11 +173,11 @@ export default function CartPage() {
                     {/* Subtotal + Remove */}
                     <div className="text-right flex flex-col items-end gap-2">
                       <p className="text-sm font-semibold text-charcoal">
-                        ₹{item.price * item.quantity}
+                        {displayPrice(item.price * item.quantity)}
                       </p>
                       <motion.button
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item.cartItemId)}
                         className="text-charcoal/20 hover:text-rose-gold transition-colors duration-300 cursor-pointer"
                       >
                         <Trash2 size={14} />
@@ -163,27 +198,38 @@ export default function CartPage() {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between text-charcoal/50">
                     <span>Subtotal</span>
-                    <span>₹{totalPrice}</span>
+                    <span>{formatPrice(convertedSubtotal)}</span>
                   </div>
+
+                  {/* Discount */}
+                  {discount && (
+                    <div className="flex justify-between text-green-600">
+                      <span className="flex items-center gap-1.5">
+                        <Tag size={12} />
+                        {discount.label}
+                      </span>
+                      <span>-{formatPrice(discountAmount)}</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-charcoal/50">
-                    <span>Shipping</span>
+                    <span className="flex items-center gap-1.5">
+                      <Truck size={12} />
+                      Shipping {isIndia ? "(India)" : "(International)"}
+                    </span>
                     <span>
-                      {shipping === 0 ? (
+                      {shippingInfo.free ? (
                         <span className="text-green-600">Free</span>
                       ) : (
-                        `₹${shipping}`
+                        shippingDisplay
                       )}
                     </span>
                   </div>
-                  {shipping > 0 && (
-                    <p className="text-[10px] text-charcoal/30">
-                      Free shipping on orders above ₹999
-                    </p>
-                  )}
+
                   <div className="border-t border-dusty-pink/15 pt-3 mt-3">
                     <div className="flex justify-between font-semibold text-charcoal text-base">
                       <span>Total</span>
-                      <span>₹{grandTotal}</span>
+                      <span>{formatPrice(grandTotal)}</span>
                     </div>
                   </div>
                 </div>

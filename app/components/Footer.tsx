@@ -34,8 +34,8 @@ export default function Footer() {
               Nail Me Amore
             </h3>
             <p className="text-charcoal/50 text-sm leading-relaxed max-w-xs">
-              Handcrafted luxury press-on nails, designed with love and delivered
-              across India. Salon-quality nails, ready in minutes.
+              Handcrafted luxury press-on nails, designed with love and shipped
+              worldwide. Salon-quality nails, ready in minutes.
             </p>
           </div>
 
@@ -79,7 +79,7 @@ export default function Footer() {
               <span className="text-sm">@nail_me_amore</span>
             </motion.a>
             <p className="text-xs text-charcoal/30 mt-6">
-              Ajmer, Rajasthan, India
+              Ajmer, Rajasthan, India · Worldwide Delivery
             </p>
           </div>
         </div>

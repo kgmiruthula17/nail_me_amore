@@ -37,7 +37,7 @@ const features = [
 
 const stats = [
   { value: "98%", label: "Design accuracy rating", accent: true },
-  { value: "48h", label: "Avg. turnaround time" },
+  { value: "2-4 weeks", label: "Avg. turnaround time" },
   { value: "5+", label: "Size options XS to XL" },
   { value: "2k+", label: "Custom sets crafted", accent: true },
 ];
@@ -71,7 +71,7 @@ export default function CustomNailSection() {
             </h2>
             <p className="text-charcoal/55 text-sm leading-relaxed max-w-xs">
               Found a set on Pinterest or Instagram that you love? Upload your inspiration
-              and we'll handcraft an exact replica, tailored just for you.
+              and we'll handcraft a custom set, tailored just for you.
              </p>
           </div>
         </motion.div>

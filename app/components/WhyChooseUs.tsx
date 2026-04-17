@@ -27,8 +27,8 @@ const features = [
   },
   {
     icon: Truck,
-    title: "PAN India Shipping",
-    description: "Free shipping across India. Delivered safely to your doorstep within 5-7 days.",
+    title: "Worldwide Shipping",
+    description: "Secure and reliable shipping straight to your doorstep, wherever you are.",
   },
 ];
 
