@@ -6,10 +6,16 @@ import { useCountry } from "../components/CountryProvider";
 import AnimatedSection from "../components/AnimatedSection";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, Loader2, Tag, Truck } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Tag, Truck, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, MapPin, User, Phone, Mail, Globe } from "lucide-react";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 export default function CheckoutPage() {
   const { items, totalPrice, totalItems, clearCart } = useCart();
@@ -40,9 +46,18 @@ export default function CheckoutPage() {
     ? convertedSubtotal * (discount.percent / 100)
     : 0;
 
-  // Grand total
+  // Grand total (in selected currency for display)
   const grandTotal =
     convertedSubtotal - discountAmount + shippingInfo.amount;
+
+  // Grand total in INR for Razorpay (prices are stored in INR)
+  const grandTotalINR = (() => {
+    const shippingINR = isIndia ? 90 : 1680;
+    const discountINR = discount
+      ? totalPrice * (discount.percent / 100)
+      : 0;
+    return totalPrice - discountINR + shippingINR;
+  })();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -64,7 +79,8 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      const response = await fetch("/api/orders", {
+      // 1. Create Razorpay order via our API
+      const createRes = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -72,7 +88,7 @@ export default function CheckoutPage() {
           phone: formData.phone,
           email: formData.email,
           address: formData.address,
-          total: grandTotal,
+          total: grandTotalINR,
           country: country.code,
           currency: country.currency,
           items: items.map((item) => ({
@@ -87,20 +103,67 @@ export default function CheckoutPage() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to place order.");
+      if (!createRes.ok) {
+        const err = await createRes.json();
+        throw new Error(err.error || "Failed to create order.");
       }
 
-      const orderData = await response.json();
+      const orderData = await createRes.json();
 
-      // Clear the local cart
-      clearCart();
+      // 2. Open Razorpay checkout popup
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Nail Me Amore",
+        description: "Luxury Press-On Nails",
+        order_id: orderData.razorpayOrderId,
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.phone,
+        },
+        theme: {
+          color: "#b76e79",
+        },
+        handler: async (response: any) => {
+          // 3. Verify payment on server
+          try {
+            const verifyRes = await fetch("/api/razorpay/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                dbOrderId: orderData.dbOrderId,
+              }),
+            });
 
-      // Redirect to success page
-      router.push(`/checkout/success`);
+            if (!verifyRes.ok) {
+              throw new Error("Payment verification failed.");
+            }
+
+            // 4. Payment verified — clear cart and redirect
+            clearCart();
+            router.push(`/checkout/success`);
+          } catch {
+            setError("Payment was received but verification failed. Please contact support.");
+            setIsSubmitting(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsSubmitting(false);
+            setError("Payment was cancelled. Your order has been saved — you can try again.");
+          },
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
     } catch (err: any) {
       setError(err.message || "An error occurred.");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -258,11 +321,16 @@ export default function CheckoutPage() {
                       </>
                     ) : (
                       <>
-                        <Check size={18} />
-                        Confirm Order
+                        <ShieldCheck size={18} />
+                        Pay {formatPrice(grandTotal)}
                       </>
                     )}
                   </motion.button>
+
+                  <p className="text-center text-[10px] text-charcoal/30 mt-3 flex items-center justify-center gap-1">
+                    <ShieldCheck size={10} />
+                    Secured by Razorpay · 100% safe payment
+                  </p>
                 </div>
               </form>
             </AnimatedSection>

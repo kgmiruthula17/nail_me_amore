@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "./components/CartProvider";
 import { CountryProvider } from "./components/CountryProvider";
@@ -54,6 +55,10 @@ export default function RootLayout({
             <Footer />
           </CartProvider>
         </CountryProvider>
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="beforeInteractive"
+        />
       </body>
     </html>
   );
