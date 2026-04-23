@@ -31,6 +31,9 @@ export default function Navbar() {
     { href: "/", label: "Home" },
     { href: "/shop", label: "Shop" },
     { href: "/size-guide", label: "Size Guide" },
+    { href: "/usage-guide", label: "Usage Guide" },
+    { href: "/policies", label: "Policies" },
+    { href: "/faq", label: "FAQ" },
     { href: "/contact", label: "Contact" },
   ];
 

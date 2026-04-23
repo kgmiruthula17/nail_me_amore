@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const category = formData.get("category") as string;
     const style = formData.get("style") as string;
 
-    // Extract and upload image to Cloudinary
+    // Extract and upload cover image to Cloudinary
     const image = formData.get("image") as File | null;
     let imageUrl: string | null = null;
 
@@ -38,6 +38,19 @@ export async function POST(request: Request) {
       const bytes = await image.arrayBuffer();
       const buffer = Buffer.from(bytes);
       imageUrl = await uploadToCloudinary(buffer, image.name);
+    }
+
+    // Extract and upload extra images to Cloudinary
+    const extraImageFiles = formData.getAll("extraImages") as File[];
+    const extraImageUrls: string[] = [];
+
+    for (const file of extraImageFiles) {
+      if (file && file.name && file.size > 0) {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const url = await uploadToCloudinary(buffer, file.name);
+        extraImageUrls.push(url);
+      }
     }
 
     const newProduct = await prisma.product.create({
@@ -49,6 +62,7 @@ export async function POST(request: Request) {
         style,
         description: "",
         image: imageUrl,
+        extraImages: extraImageUrls,
       },
     });
 
@@ -61,4 +75,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

@@ -123,3 +123,8 @@ body {
   background: var(--color-dusty-pink);
   color: white;
 }
+
+/* Hide scrollbar but keep scroll */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

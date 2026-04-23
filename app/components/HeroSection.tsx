@@ -118,6 +118,43 @@ export default function HeroSection() {
           </Link>
         </motion.div>
 
+        {/* Flashing Offer Strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.3 }}
+          className="mt-10 w-full max-w-2xl mx-auto"
+        >
+          <motion.div
+            animate={{
+              boxShadow: [
+                "0 0 8px rgba(212,175,55,0.3), 0 0 20px rgba(212,175,55,0.1)",
+                "0 0 16px rgba(212,175,55,0.6), 0 0 40px rgba(212,175,55,0.2)",
+                "0 0 8px rgba(212,175,55,0.3), 0 0 20px rgba(212,175,55,0.1)",
+              ],
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="relative overflow-hidden rounded-full border border-white/30 bg-white/15 backdrop-blur-md px-4 sm:px-6 py-3"
+          >
+            {/* Shimmer sweep effect */}
+            <motion.div
+              animate={{ x: ["-100%", "200%"] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+              className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-20deg]"
+            />
+
+            <p className="relative text-center text-[10px] sm:text-sm tracking-[0.1em] sm:tracking-[0.15em] uppercase font-bold whitespace-nowrap">
+              <motion.span
+                animate={{ opacity: [0.85, 1, 0.85] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
+              >
+                ✦ 10% OFF on 2 Sets &nbsp;•&nbsp; 20% OFF on 3+ Sets ✦
+              </motion.span>
+            </p>
+          </motion.div>
+        </motion.div>
+
       </div>
     </section>
   );

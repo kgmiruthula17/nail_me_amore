@@ -18,14 +18,37 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { displayPrice } = useCountry();
   const [added, setAdded] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [selectedShape, setSelectedShape] = useState("Medium Coffin");
-  const [selectedSize, setSelectedSize] = useState("M");
+  const [selectedShape, setSelectedShape] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  const shapes = ["Medium Square", "Medium Oval", "Medium Stiletto", "Medium Almond", "Medium Coffin", "Long Square", "Long Oval", "Long Stiletto", "Long Almond", "Long Coffin", "XL Square"];
+  // Combine cover image + extra images for the gallery
+  const allImages = [
+    ...(product.image ? [product.image] : []),
+    ...(product.extraImages || []),
+  ];
+
+  const shapes = [
+    "Stiletto",
+    "Arrow",
+    "Square-Extreme",
+    "Square-Long",
+    "Square-Short",
+    "Ballerina - Long",
+    "Ballerina-Medium",
+    "Ballerina Short",
+    "Almond-Long",
+    "Almond-Medium",
+    "Coffin-Extreme",
+    "Coffin - Deep C",
+    "Oval-Long",
+    "Oval-Short"
+  ];
   const sizes = ["XS", "S", "M", "L", "Custom"];
 
   const handleAddToCart = () => {
+    setSelectedImageIndex(0);
     setShowModal(true);
   };
 
@@ -153,7 +176,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md relative z-10 shadow-2xl"
+              className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto relative z-10 shadow-2xl scrollbar-none"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -164,7 +188,42 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               </button>
               
               <h2 className="font-heading text-2xl text-charcoal mb-2 pr-6 leading-tight">{product.name}</h2>
-              <p className="text-rose-gold font-medium mb-6 text-sm">{displayPrice(product.price)}</p>
+              <p className="text-rose-gold font-medium mb-4 text-sm">{displayPrice(product.price)}</p>
+
+              {/* Product Image Gallery */}
+              {allImages.length > 0 && (
+                <div className="mb-6">
+                  {/* Main selected image */}
+                  <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-cream mb-3 border border-dusty-pink/10">
+                    <Image
+                      src={allImages[selectedImageIndex]}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 400px"
+                    />
+                  </div>
+                  {/* Thumbnail strip */}
+                  {allImages.length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {allImages.map((img, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setSelectedImageIndex(i)}
+                          className={`relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all duration-200 ${
+                            selectedImageIndex === i
+                              ? "border-rose-gold shadow-md"
+                              : "border-transparent opacity-60 hover:opacity-100"
+                          }`}
+                        >
+                          <Image src={img} alt={`${product.name} ${i + 1}`} fill className="object-cover" sizes="56px" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Options */}
               <div className="space-y-6">
@@ -175,6 +234,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                     onChange={(e) => setSelectedShape(e.target.value)}
                     className="w-full border border-dusty-pink/30 rounded-xl px-4 py-3.5 text-sm text-charcoal focus:outline-none focus:border-rose-gold focus:ring-1 focus:ring-rose-gold appearance-none bg-cream/40 transition-shadow cursor-pointer"
                   >
+                    <option value="" disabled hidden>Select your shape</option>
                     {shapes.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
@@ -184,7 +244,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                     <label className="block text-[10px] uppercase tracking-widest text-charcoal/50 font-medium">
                       Size 
                     </label>
-                    <Link href="/size-guide" target="_blank" className="text-[10px] text-rose-gold hover:text-charcoal transition-colors uppercase tracking-wider underline underline-offset-2">Size Guide</Link>
+                    <Link href="/size-guide" target="_blank" className="text-[10px] text-rose-gold hover:text-charcoal transition-colors uppercase tracking-wider underline underline-offset-2">Shape & Size Guide</Link>
                   </div>
                   <div className="grid grid-cols-5 gap-2">
                     {sizes.map(s => (
@@ -196,6 +256,22 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                         {s}
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Additional Info */}
+                <div className="space-y-4 pt-4 pb-2 border-t border-dusty-pink/20">
+                  <div>
+                    <h4 className="font-heading text-sm text-charcoal mb-1">Estimated delivery time ~</h4>
+                    <p className="text-[11px] text-charcoal/60 leading-relaxed">
+                      Each set is handmade with lot of care and love with great attention to detailing. With the undying trust and love of our regular and new clients we are almost always fully booked so our normal EDT is 2-4 weeks. We expect your patience and cooperation in order to deliver you a set that&rsquo;s pure art & magic.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-heading text-sm text-charcoal mb-1">What&rsquo;s inside the box? ~</h4>
+                    <p className="text-[11px] text-charcoal/60 leading-relaxed">
+                      A set of high quality handmade 10 Press on nails with glue & prep kit.
+                    </p>
                   </div>
                 </div>
 
@@ -214,12 +290,19 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={selectedShape && selectedSize ? { scale: 1.02 } : {}}
+                whileTap={selectedShape && selectedSize ? { scale: 0.98 } : {}}
                 onClick={handleConfirmAddToCart}
-                className="w-full mt-8 bg-charcoal text-cream hover:bg-rose-gold py-4 rounded-full text-xs uppercase tracking-widest font-medium transition-colors duration-300 shadow-xl shadow-charcoal/10"
+                disabled={!selectedShape || !selectedSize}
+                className={`w-full mt-8 py-4 rounded-full text-xs uppercase tracking-widest font-medium transition-colors duration-300 shadow-xl shadow-charcoal/10 ${
+                  selectedShape && selectedSize 
+                    ? "bg-charcoal text-cream hover:bg-rose-gold cursor-pointer" 
+                    : "bg-charcoal/40 text-white cursor-not-allowed"
+                }`}
               >
-                Add to Cart - {displayPrice(product.price * quantity)}
+                {!selectedShape || !selectedSize 
+                  ? "Select Shape & Size" 
+                  : `Add to Cart - ${displayPrice(product.price * quantity)}`}
               </motion.button>
             </motion.div>
           </div>
