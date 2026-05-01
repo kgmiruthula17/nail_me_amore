@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Package, LayoutDashboard, LogOut, Tags, Ruler } from "lucide-react";
+import { Package, LayoutDashboard, LogOut, Tags, Ruler, Settings, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -17,20 +17,40 @@ export default function AdminLayout({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Very simple auth check using localStorage
-    const auth = localStorage.getItem("adminAuth");
-    if (auth === "true") {
-      setIsAuthenticated(true);
-    } else if (pathname !== "/admin/login") {
-      router.push("/admin/login");
+    // Server-side auth check via cookie
+    if (pathname === "/admin/login") {
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    fetch("/api/auth", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+        } else {
+          router.push("/admin/login");
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        router.push("/admin/login");
+        setLoading(false);
+      });
   }, [pathname, router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminAuth");
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth", {
+        method: "DELETE",
+        credentials: "include",
+      });
+    } catch {
+      // Ignore errors
+    }
     setIsAuthenticated(false);
     router.push("/admin/login");
+    router.refresh();
   };
 
   if (loading) return null;
@@ -41,6 +61,15 @@ export default function AdminLayout({
   }
 
   if (!isAuthenticated) return null;
+
+  const navItems = [
+    { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { href: "/admin/products", label: "Products", icon: Package },
+    { href: "/admin/categories", label: "Categories", icon: Tags },
+    { href: "/admin/styles", label: "Lengths", icon: Ruler },
+    { href: "/admin/carts", label: "Carts", icon: ShoppingCart },
+    { href: "/admin/settings", label: "Settings", icon: Settings },
+  ];
 
   return (
     <div className="min-h-screen bg-soft-gray pt-28">
@@ -54,57 +83,27 @@ export default function AdminLayout({
             </h2>
             
             <nav className="flex flex-wrap justify-center items-center gap-2">
-              <Link href="/admin">
-                <button
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    pathname === "/admin"
-                      ? "bg-rose-gold/10 text-rose-gold"
-                      : "text-charcoal/60 hover:bg-charcoal/5 hover:text-charcoal"
-                  }`}
-                >
-                  <LayoutDashboard size={16} />
-                  Dashboard
-                </button>
-              </Link>
-              
-              <Link href="/admin/products">
-                <button
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    pathname === "/admin/products" || pathname.startsWith("/admin/products/")
-                      ? "bg-rose-gold/10 text-rose-gold"
-                      : "text-charcoal/60 hover:bg-charcoal/5 hover:text-charcoal"
-                  }`}
-                >
-                  <Package size={16} />
-                  Products
-                </button>
-              </Link>
+              {navItems.map((item) => {
+                const isActive = item.exact
+                  ? pathname === item.href
+                  : pathname === item.href || pathname.startsWith(item.href + "/");
+                const Icon = item.icon;
 
-              <Link href="/admin/categories">
-                <button
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    pathname === "/admin/categories"
-                      ? "bg-rose-gold/10 text-rose-gold"
-                      : "text-charcoal/60 hover:bg-charcoal/5 hover:text-charcoal"
-                  }`}
-                >
-                  <Tags size={16} />
-                  Categories
-                </button>
-              </Link>
-
-              <Link href="/admin/styles">
-                <button
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    pathname === "/admin/styles"
-                      ? "bg-rose-gold/10 text-rose-gold"
-                      : "text-charcoal/60 hover:bg-charcoal/5 hover:text-charcoal"
-                  }`}
-                >
-                  <Ruler size={16} />
-                  Lengths
-                </button>
-              </Link>
+                return (
+                  <Link key={item.href} href={item.href}>
+                    <button
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-rose-gold/10 text-rose-gold"
+                          : "text-charcoal/60 hover:bg-charcoal/5 hover:text-charcoal"
+                      }`}
+                    >
+                      <Icon size={16} />
+                      {item.label}
+                    </button>
+                  </Link>
+                );
+              })}
             </nav>
           </div>
 

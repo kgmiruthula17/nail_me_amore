@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
 import { uploadToCloudinary } from "../../../lib/cloudinary";
+import { verifySession } from "../../../lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,10 @@ export async function DELETE(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
+  if (!verifySession(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { id } = await context.params;
     const productId = parseInt(id);
@@ -32,6 +37,10 @@ export async function PUT(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
+  if (!verifySession(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { id } = await context.params;
     const productId = parseInt(id);

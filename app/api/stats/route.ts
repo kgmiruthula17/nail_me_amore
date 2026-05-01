@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../lib/prisma";
+import { verifySession } from "../../lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!verifySession(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     // Compute stats from actual database records
     const totalBuys = await prisma.order.count();

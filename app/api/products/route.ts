@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../lib/prisma";
 import { uploadToCloudinary } from "../../lib/cloudinary";
+import { verifySession } from "../../lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!verifySession(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
 

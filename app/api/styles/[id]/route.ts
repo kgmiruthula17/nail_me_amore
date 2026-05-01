@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
+import { verifySession } from "../../../lib/auth";
 
 export async function PUT(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
+  if (!verifySession(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { id } = await context.params;
     const { name } = await req.json();
@@ -25,6 +30,10 @@ export async function DELETE(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
+  if (!verifySession(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { id } = await context.params;
     await prisma.style.delete({

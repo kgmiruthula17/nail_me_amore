@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../lib/prisma";
+import { verifySession } from "../../lib/auth";
 
 export async function GET() {
   try {
@@ -13,6 +14,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  if (!verifySession(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { name } = await req.json();
     if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });

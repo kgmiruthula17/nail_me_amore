@@ -25,9 +25,11 @@ export default function AdminLoginPage() {
 
       const data = await res.json();
 
-      if (data.success) {
-        localStorage.setItem("adminAuth", "true");
+      if (res.status === 429) {
+        setError(data.message || "Too many attempts. Please try again later.");
+      } else if (res.ok && data.success) {
         router.push("/admin");
+        router.refresh();
       } else {
         setError(data.message || "Invalid password");
       }
@@ -55,7 +57,7 @@ export default function AdminLoginPage() {
             <div>
               <input
                 type="password"
-                placeholder="Password (hint: admin123)"
+                placeholder="Enter admin password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-cream border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-gold transition-colors"

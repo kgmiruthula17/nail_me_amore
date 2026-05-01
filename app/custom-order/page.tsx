@@ -22,6 +22,65 @@ const SHAPES = [
   { id: "XXXL_COFFIN", label: "XXXL Coffin" },
 ];
 
+function InstagramIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+  );
+}
+
+// Note: Using Phone icon path for WhatsApp if MessageCircle is missing, but actually let's use a proper WhatsApp SVG if possible.
+// Actually let's use a simple speech bubble for "Additional Notes" and "WhatsApp".
+function MessageIcon({ size = 18, className }: { size?: number, className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
 export default function CustomOrderPage() {
   const { displayPrice } = useCountry();
   const [step, setStep] = useState(1);
@@ -29,6 +88,7 @@ export default function CustomOrderPage() {
     name: "",
     phone: "",
     address: "",
+    notes: "",
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -319,6 +379,23 @@ export default function CustomOrderPage() {
                       </div>
                     </div>
 
+                    {/* Notes */}
+                    <div>
+                      <h2 className="text-2xl font-heading mb-2 flex items-center gap-2">
+                        <MessageIcon className="text-dusty-pink" size={22} />
+                        Additional Notes
+                      </h2>
+                      <p className="text-sm text-charcoal/60 mb-3">
+                        Have something specific in mind? Let us know any extra details — colours, charms, finishes, or anything else!
+                      </p>
+                      <textarea
+                        className="w-full bg-white/50 border border-warm-white focus:border-dusty-pink rounded-xl px-4 py-3 outline-none transition-all min-h-[120px] resize-y placeholder:text-charcoal/40"
+                        placeholder="E.g. I'd love holographic flakes with a soft pink base, matte finish on thumb only…"
+                        value={formData.notes}
+                        onChange={e => setFormData({...formData, notes: e.target.value})}
+                      />
+                    </div>
+
                     {/* Order Summary (Just Flat Fee Display) */}
                     <div className="bg-white/40 rounded-xl p-5 border border-white mt-6">
                       <div className="flex justify-between items-center mb-2">
@@ -328,6 +405,34 @@ export default function CustomOrderPage() {
                       <p className="text-xs text-charcoal/60">
                         Final quote will be confirmed upon design review. This acts as an initial request.
                       </p>
+                    </div>
+
+                    {/* Want to Discuss More? */}
+                    <div className="bg-gradient-to-r from-dusty-pink/10 to-rose-gold/10 rounded-2xl p-5 mt-4 border border-dusty-pink/20">
+                      <h3 className="font-heading text-lg mb-2 text-center">Want to discuss more?</h3>
+                      <p className="text-sm text-charcoal/60 text-center mb-4">
+                        Reach out to us directly — we'd love to chat about your dream set!
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <a
+                          href="https://www.instagram.com/nail_me_amore/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white px-6 py-2.5 rounded-full hover:opacity-90 transition-opacity text-sm font-medium shadow-sm"
+                        >
+                          <InstagramIcon size={18} />
+                          DM on Instagram
+                        </a>
+                        <a
+                          href="https://wa.me/917891393926"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 bg-[#25D366] text-white px-6 py-2.5 rounded-full hover:opacity-90 transition-opacity text-sm font-medium shadow-sm"
+                        >
+                          <MessageIcon size={18} />
+                          Chat on WhatsApp
+                        </a>
+                      </div>
                     </div>
 
                   </motion.div>

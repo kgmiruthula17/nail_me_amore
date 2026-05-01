@@ -174,7 +174,7 @@ export default function ContactPage() {
         <AnimatedSection delay={0.4}>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-8 text-center">
             <motion.a
-              href="https://instagram.com/nailmeamore"
+              href="https://www.instagram.com/nail_me_amore/"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
