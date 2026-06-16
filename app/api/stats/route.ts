@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
     // Map orders to the response shape the frontend expects
     const mappedOrders = recentOrders.map((order) => ({
-      id: order.id,
+      id: order.orderNumber || order.id,
       product: order.items.length > 0 ? (order.items[0].name + (order.items.length > 1 ? ' + more...' : '')) : "Custom Order",
       amount: order.total,
       status: order.status.charAt(0) + order.status.slice(1).toLowerCase(), // DELIVERED -> Delivered

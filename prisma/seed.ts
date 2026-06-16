@@ -50,27 +50,45 @@ async function main() {
         Delivered: "DELIVERED",
       };
 
+      const seedDate = new Date(order.date);
+      const dateStr = seedDate.toISOString().slice(0, 10).replace(/-/g, "");
+      const prefix = `NMA-${dateStr}-`;
+
+      const lastOrder = await prisma.order.findFirst({
+        where: { orderNumber: { startsWith: prefix } },
+        orderBy: { orderNumber: "desc" },
+        select: { orderNumber: true },
+      });
+
+      let nextSeq = 1;
+      if (lastOrder?.orderNumber) {
+        const lastSeq = parseInt(lastOrder.orderNumber.split("-").pop() || "0", 10);
+        nextSeq = lastSeq + 1;
+      }
+      const orderNumber = `${prefix}${String(nextSeq).padStart(3, "0")}`;
+
       await prisma.order.create({
-  data: {
-    id: order.id,
-    customerName: order.customerName || "Test User",
-    address: order.address || "Chennai",
-    phone: order.phone || "9999999999",
-    total: order.amount, 
-    status: statusMap[order.status] || "PROCESSING",
-    createdAt: new Date(order.date),
-    items: {
-      create: [
-        {
-          productId: 1,
-          name: order.product,
-          quantity: 1,
-          price: order.amount
-        }
-      ]
-    }
-  },
-});
+        data: {
+          id: order.id,
+          orderNumber,
+          customerName: order.customerName || "Test User",
+          address: order.address || "Chennai",
+          phone: order.phone || "9999999999",
+          total: order.amount,
+          status: statusMap[order.status] || "PROCESSING",
+          createdAt: seedDate,
+          items: {
+            create: [
+              {
+                productId: 1,
+                name: order.product,
+                quantity: 1,
+                price: order.amount,
+              },
+            ],
+          },
+        },
+      });
       console.log(`  ✅ Order: ${order.id} — ${order.product}`);
     }
   }

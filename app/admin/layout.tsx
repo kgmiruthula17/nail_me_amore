@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Package, LayoutDashboard, LogOut, Tags, Ruler, Settings, ShoppingCart } from "lucide-react";
+import { Package, LayoutDashboard, LogOut, Tags, Ruler, Settings, ShoppingCart, ClipboardList } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -64,6 +64,7 @@ export default function AdminLayout({
 
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { href: "/admin/orders", label: "Orders", icon: ClipboardList },
     { href: "/admin/products", label: "Products", icon: Package },
     { href: "/admin/categories", label: "Categories", icon: Tags },
     { href: "/admin/styles", label: "Lengths", icon: Ruler },

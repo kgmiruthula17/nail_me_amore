@@ -47,6 +47,7 @@ enum OrderStatus {
 
 model Order {
   id                String      @id @default(cuid())
+  orderNumber       String      @unique
   customerName      String
   phone             String
   email             String      @default("")

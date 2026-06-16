@@ -161,6 +161,10 @@ export default function CheckoutPage() {
       };
 
       const razorpay = new window.Razorpay(options);
+      razorpay.on("payment.failed", function (response: any) {
+        setError(`Payment failed: ${response.error.description}`);
+        setIsSubmitting(false);
+      });
       razorpay.open();
     } catch (err: any) {
       setError(err.message || "An error occurred.");
