@@ -29,8 +29,7 @@ export default function AdminLoginPage() {
       if (res.status === 429) {
         setError(data.message || "Too many attempts. Please try again later.");
       } else if (res.ok && data.success) {
-        router.push("/admin");
-        router.refresh();
+        window.location.href = "/admin";
       } else {
         setError(data.message || "Invalid password");
       }
