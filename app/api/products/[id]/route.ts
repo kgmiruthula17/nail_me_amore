@@ -9,7 +9,7 @@ export async function DELETE(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  if (!verifySession(request)) {
+  if (!(await verifySession())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -37,7 +37,7 @@ export async function PUT(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  if (!verifySession(request)) {
+  if (!(await verifySession())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -7,7 +7,7 @@ import { verifySession } from "../../../lib/auth";
  * Query params: ?filter=24h|7d|all (default: all)
  */
 export async function GET(request: Request) {
-  if (!verifySession(request)) {
+  if (!(await verifySession())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

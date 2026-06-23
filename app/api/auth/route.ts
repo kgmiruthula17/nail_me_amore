@@ -69,23 +69,13 @@ export async function POST(request: Request) {
     }
 
     const storedHash = await getPasswordHash();
-    console.log("[DEBUG] Password provided:", password);
-    console.log("[DEBUG] Stored Hash:", storedHash);
-    console.log("[DEBUG] Stored Hash Length:", storedHash.length);
-    
     const isValid = await verifyPassword(password, storedHash);
-    console.log("[DEBUG] Password Valid:", isValid);
 
     if (!isValid) {
       return NextResponse.json(
         { 
           success: false, 
           message: "Invalid credentials",
-          debug: {
-            password,
-            storedHash,
-            storedHashLength: storedHash.length
-          }
         },
         { status: 401 }
       );

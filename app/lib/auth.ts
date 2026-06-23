@@ -1,4 +1,5 @@
 import { createHmac, randomUUID } from "crypto";
+import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 
 // ─── Password Hashing ───────────────────────────────────────────────────────
@@ -16,41 +17,47 @@ export async function verifyPassword(
   return bcrypt.compare(plain, hash);
 }
 
-// ─── Session Store (in-memory) ──────────────────────────────────────────────
+// ─── Stateless Session Tokens ───────────────────────────────────────────────
+// Session data is encoded directly in the signed cookie value as:
+//   `sessionId:expiresAtTimestamp`
+// The HMAC signature prevents tampering. No server-side state is needed,
+// which is critical for serverless platforms like Netlify where each request
+// can hit a different function instance with its own memory.
 
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
 
-interface Session {
-  id: string;
-  createdAt: number;
-  expiresAt: number;
-}
-
-const sessionStore = new Map<string, Session>();
-
+/**
+ * Create a session token string containing the session ID and expiry.
+ * This token will be signed and stored in a cookie.
+ */
 export function createSession(): string {
   const id = randomUUID();
-  const now = Date.now();
-  sessionStore.set(id, {
-    id,
-    createdAt: now,
-    expiresAt: now + SESSION_TTL_MS,
-  });
-  return id;
+  const expiresAt = Date.now() + SESSION_TTL_MS;
+  return `${id}:${expiresAt}`;
 }
 
-export function validateSession(sessionId: string): boolean {
-  const session = sessionStore.get(sessionId);
-  if (!session) return false;
-  if (Date.now() > session.expiresAt) {
-    sessionStore.delete(sessionId);
-    return false;
-  }
-  return true;
+/**
+ * Validate a session token by checking its expiry timestamp.
+ * The token has already been verified via HMAC signature by verifyCookie(),
+ * so we only need to check if it has expired.
+ */
+export function validateSession(sessionToken: string): boolean {
+  const parts = sessionToken.split(":");
+  if (parts.length < 2) return false;
+
+  const expiresAt = parseInt(parts[parts.length - 1], 10);
+  if (isNaN(expiresAt)) return false;
+
+  return Date.now() < expiresAt;
 }
 
-export function destroySession(sessionId: string): void {
-  sessionStore.delete(sessionId);
+/**
+ * Destroy a session. With stateless tokens this is a no-op on the server side.
+ * The cookie is deleted by the caller.
+ */
+export function destroySession(_sessionToken: string): void {
+  // Stateless — nothing to clean up server-side.
+  // The cookie deletion in the route handler is what actually ends the session.
 }
 
 // ─── Cookie Signing (HMAC-SHA256) ───────────────────────────────────────────
@@ -108,30 +115,21 @@ export function getAdminCookieName(): string {
 }
 
 /**
- * Verify that a request has a valid admin session.
- * Works with the standard Request object used in Route Handlers.
+ * Verify that the current request has a valid admin session.
+ * Uses Next.js cookies() API which works reliably on serverless platforms.
  */
-export function verifySession(request: Request): boolean {
-  const cookieHeader = request.headers.get("cookie");
-  if (!cookieHeader) return false;
+export async function verifySession(): Promise<boolean> {
+  try {
+    const cookieStore = await cookies();
+    const signedValue = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
+    if (!signedValue) return false;
 
-  const cookies = parseCookies(cookieHeader);
-  const signedValue = cookies[ADMIN_COOKIE_NAME];
-  if (!signedValue) return false;
+    const sessionToken = verifyCookie(signedValue);
+    if (!sessionToken) return false;
 
-  const sessionId = verifyCookie(signedValue);
-  if (!sessionId) return false;
-
-  return validateSession(sessionId);
+    return validateSession(sessionToken);
+  } catch {
+    return false;
+  }
 }
 
-function parseCookies(cookieHeader: string): Record<string, string> {
-  const cookies: Record<string, string> = {};
-  cookieHeader.split(";").forEach((cookie) => {
-    const [name, ...rest] = cookie.trim().split("=");
-    if (name) {
-      cookies[name.trim()] = decodeURIComponent(rest.join("=").trim());
-    }
-  });
-  return cookies;
-}

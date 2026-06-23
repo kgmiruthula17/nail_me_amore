@@ -5,7 +5,7 @@ import { verifySession } from "../../lib/auth";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  if (!verifySession(request)) {
+  if (!(await verifySession())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -17,12 +17,13 @@ export default function AdminLayout({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Server-side auth check via cookie
+    // Skip auth check on the login page
     if (pathname === "/admin/login") {
       setLoading(false);
       return;
     }
 
+    // Only check auth once on mount — not on every pathname change
     fetch("/api/auth", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
@@ -37,7 +38,8 @@ export default function AdminLayout({
         router.push("/admin/login");
         setLoading(false);
       });
-  }, [pathname, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleLogout = async () => {
     try {
